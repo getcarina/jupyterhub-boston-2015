@@ -1,6 +1,6 @@
 # JupyterHub Boston 2015
 
-[View Slides](http://lyrical-stem.surge.sh/)
+[View Slides](https://jupyterhub.surge.sh/)
 
 ## Reference
 
