@@ -46,7 +46,10 @@ const images = {
 preloader(images);
 
 const theme = createTheme({
-  primary: '#ff8a40',
+  primary: '#ff8940',
+  secondary: '#ffb740',
+  tertiary: 'white',
+  quarternary: '#29A489',
 });
 
 export default class Presentation extends React.Component {
@@ -54,6 +57,7 @@ export default class Presentation extends React.Component {
     return (
       <Spectacle theme={theme}>
         <Deck transition={['zoom', 'slide']} transitionDuration={500}>
+
           <Slide transition={['zoom']} bgColor="primary">
             <Heading size={1} fit caps lineHeight={1} textColor="black">
               JupyterHub
@@ -69,6 +73,30 @@ export default class Presentation extends React.Component {
             </Link>
             <Text textSize="1.5em" margin="20px 0px 0px" bold>Hit Your Right Arrow To Begin!</Text>
           </Slide>
+
+          <Slide transition={['spin', 'zoom']} bgColor="white">
+            <Heading caps fit size={1} textColor="black">
+              Instructors
+            </Heading>
+            <Markdown>
+              {`
+[@rgbkrk](https://github.com/rgbkrk) - Kyle Kelley
+
+[@smashwilson](https://github.com/smashwilson) - Ash Wilson
+              `}
+            </Markdown>
+          </Slide>
+
+          <Slide transition={['spin']} bgColor="primary" textColor="tertiary">
+            <Heading size={2} textColor="tertiary">
+              Goals
+            </Heading>
+            <List>
+              <ListItem>Learn Docker Swarm Fundamentals</ListItem>
+              <ListItem>Deploy JupyterHub to Swarm via <Link bold textColor="tertiary" href="https://getcarina.com">Carina</Link></ListItem>
+            </List>
+          </Slide>
+
         </Deck>
       </Spectacle>
     );
