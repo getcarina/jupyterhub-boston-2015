@@ -1,5 +1,7 @@
 # JupyterHub Boston 2015
 
+[View Slides](https://jupyterhub.surge.sh/)
+
 ## Reference
 
 The Spectacle core API is available at [https://github.com/FormidableLabs/spectacle/blob/master/README.markdown](https://github.com/FormidableLabs/spectacle/blob/master/README.markdown).
