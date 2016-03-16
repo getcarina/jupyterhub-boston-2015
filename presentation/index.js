@@ -97,6 +97,85 @@ export default class Presentation extends React.Component {
             </List>
           </Slide>
 
+          <Slide>
+            <Heading caps fit size={1}>Setup</Heading>
+          </Slide>
+
+          <Slide>
+            <h3>Log In</h3>
+            <p>Log in to the Carina GUI.</p>
+            <ul>
+              <li><a href="https://app.getcarina.com/" target="_blank">Log In</a></li>
+              <li>Use your Rackspace public cloud username/password</li>
+              <li>Don't create a cluster just yet</li>
+              <li>Get your API Key under your username in the top right corner</li>
+              <li>Note: People without a Rackspace account do not need to use a credit card</li>
+            </ul>
+          </Slide>
+
+          <Slide>
+            <h3>Installation</h3>
+            <ol>
+              <li><a href="https://git-scm.com/downloads" target="_blank">Git</a></li>
+              <li>Docker Version Manager</li>
+              <ol>
+                <li>Utility for managing Docker client versions</li>
+                <li><a href="https://getcarina.com/docs/tutorials/docker-version-manager/" target="_blank">Manage Docker client versions with dvm</a></li>
+                <li>Do the <b>Install dvm</b> section only</li>
+                <li><code>dvm install 1.10.1</code></li>
+              </ol>
+              <li>Carina CLI</li>
+              <ol>
+                <li>The CLI for the Caria API</li>
+                <li><a href="https://getcarina.com/docs/getting-started/getting-started-carina-cli/" target="_blank">Getting started with the Carina CLI</a></li>
+                <li>Do the <b>Download and install the CLI</b> and <b>Configure with Carina credentials</b> sections only</li>
+                <li><code>carina ls</code></li>
+              </ol>
+            </ol>
+          </Slide>
+
+          <Slide>
+            <h3>Site Overview</h3>
+            <p>Get a feel for the Carina website.</p>
+            <ul>
+              <li><a href="https://getcarina.com/" target="_blank">Carina</a></li>
+              <li>Documentation</li>
+                <ul>
+                  <li>Note the Edit on GitHub links on every page</li>
+                </ul>
+              <li>Community</li>
+                <ul>
+                  <li>Use your Rackspace public cloud username/password</li>
+                </ul>
+              <li>Blog</li>
+                <ul>
+                  <li>Subscribe via RSS</li>
+                </ul>
+            </ul>
+          </Slide>
+
+          <Slide>
+            <h3>Add a Cluster</h3>
+            <p>Setup a cluster where we can run Docker containers</p>
+            <ul>
+              <li><a href="https://app.getcarina.com/" target="_blank">Log In</a></li>
+              <li>Add Cluster</li>
+                <ul>
+                  <li>Cluster Name: mycluster</li>
+                  <li>Enable Autoscale: unchecked</li>
+                </ul>
+              <li>Get Access</li>
+                <ul>
+                  <li>Download File</li>
+                  <li>Unzip</li>
+                  <li>List files</li>
+                </ul>
+            </ul>
+            <aside>
+              This is the last time we touch the GUI. Everything is on the
+              command line from here on out.
+            </aside>
+          </Slide>
         </Deck>
       </Spectacle>
     );
