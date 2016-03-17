@@ -101,16 +101,16 @@ export default class Presentation extends React.Component {
             <Heading caps fit size={1}>Setup</Heading>
           </Slide>
 
-          <Slide>
-            <h3>Log In</h3>
-            <p>Log in to the Carina GUI.</p>
-            <ul>
-              <li><a href="https://app.getcarina.com/" target="_blank">Log In</a></li>
-              <li>Use your Rackspace public cloud username/password</li>
-              <li>Don't create a cluster just yet</li>
-              <li>Get your API Key under your username in the top right corner</li>
-              <li>Note: People without a Rackspace account do not need to use a credit card</li>
-            </ul>
+          <Slide textColor="tertiary">
+            <Heading size={3} textColor="tertiary">Log In</Heading>
+            <Text textColor="tertiary">Log in to the Carina GUI.</Text>
+            <List>
+              <ListItem><Link bold textColor="secondary" href="https://getcarina.com/" target="_blank">Create an account at getcarina.com</Link></ListItem>
+              <ListItem>Log in at <Link textColor="secondary" href="https://app.getcarina.com/" target="_blank">app.getcarina.com</Link></ListItem>
+              <ListItem>Don't create a cluster just yet</ListItem>
+              <ListItem>Get your API Key under your username in the top right corner</ListItem>
+              <ListItem>Note: People without a Rackspace account do not need to use a credit card</ListItem>
+            </List>
           </Slide>
 
           <Slide>
