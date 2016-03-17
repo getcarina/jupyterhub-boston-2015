@@ -1,0 +1,1171 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>JupyterHub on Docker Swarm</title>
+
+    <meta name="description" content="Deploy an interactive data science environment with JupyterHub on Docker Swarm">
+    <meta name="author" content="Kyle Kelley">
+    <meta name="author" content="Ash Wilson">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/night.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section id="welcome">
+          <h4>Deploy an interactive data science environment</h4>
+          <h5>with JupyterHub on Docker Swarm</h5>
+          <img src="img/docker-swarm.png"/>
+          <h4>Open <a href="https://jupyterhub.surge.sh">jupyterhub.surge.sh</a></h4>
+          <h5>Go to <a href="#setup">Setup</a> and get started</h5>
+          <p style="font-size: 50%;">Use the arrow keys to navigate</p>
+        </section>
+
+        <section id="instructors">
+          <h3>Instructors</h3>
+          <center>
+            <table>
+              <tbody>
+                <tr>
+                  <td>Kyle Kelley</td>
+                  <td><a href="https://twitter.com/rgbkrk" target="_blank">@rgbkrk</a></td>
+                </tr>
+                <tr>
+                  <td>Ash Wilson</td>
+                  <td><a href="https://twitter.com/smashwilson" target="_blank">@smashwilson</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </center>
+        </section>
+
+        <section id="goals">
+          <h3>Goals</h3>
+          <ul>
+            <li>Learn Docker Swarm fundamentals</li>
+            <li>Deploy JupyterHub to Swarm via <a href="https://getcarina.com/" target="_blank">Carina</a></li>
+          </ul>
+          <aside class="notes">
+            <ul>
+              <li>The Docker basics will essentially be the minimum knowledge of Docker you need to complete the workshop</li>
+              <li>File issues or send PRs!</li>
+              <li>Windows users band together</li>
+              <li>Pair up</li>
+            </ul>
+          </aside>
+        </section>
+
+        <section>
+          <span style="white-space: nowrap;">
+            <h3>Agenda</h3>
+            <ol>
+              <li><a href="#/setup">Setup</a></li>
+              <li><a href="#/docker-swarm-carina">Docker Swarm and Carina</a></li>
+              <li><a href="#/break">Break</a></li>
+              <li><a href="#/notebook">Notebook</a></li>
+              <li><a href="#/jupyterhub-carina">JupyterHub on Carina</a></li>
+              <li><a href="#/wrap-up">Wrap up</a></li>
+            </ol>
+          </span>
+        </section>
+
+<!-- ********************************************************************** -->
+
+        <section id="setup">
+          <h1 style="color:DeepSkyBlue">Setup</h1>
+        </section>
+
+        <section>
+          <h3>Log In</h3>
+          <p>Log in to the Carina GUI.</p>
+          <ul>
+            <li><a href="https://getcarina.com/" target="_blank">Create an account</a></li>
+            <li><a href="https://app.getcarina.com/" target="_blank">Log In</a></li>
+            <li>Don't create a cluster just yet</li>
+            <li>Get your API Key under your username in the top right corner</li>
+          </ul>
+        </section>
+
+        <section id="installation">
+          <h3>Installation</h3>
+          <ol>
+            <li><a href="https://git-scm.com/downloads" target="_blank">Git</a></li>
+            <li>Docker Version Manager</li>
+            <ol>
+              <li>Utility for managing Docker client versions</li>
+              <li><a href="https://getcarina.com/docs/tutorials/docker-version-manager/" target="_blank">Manage Docker client versions with dvm</a></li>
+              <li>Do the <b>Install dvm</b> section only</li>
+              <li><code>dvm install 1.10.1</code></li>
+            </ol>
+            <li>Carina CLI</li>
+            <ol>
+              <li>The CLI for the Caria API</li>
+              <li><a href="https://getcarina.com/docs/getting-started/getting-started-carina-cli/" target="_blank">Getting started with the Carina CLI</a></li>
+              <li>Do the <b>Download and install the CLI</b> and <b>Configure with Carina credentials</b> sections only</li>
+              <li><code>carina ls</code></li>
+            </ol>
+          </ol>
+        </section>
+
+        <section>
+          <h3>Site Overview</h3>
+          <p>Get a feel for the Carina website.</p>
+          <ul>
+            <li><a href="https://getcarina.com/" target="_blank">Carina</a></li>
+            <li>Documentation</li>
+              <ul>
+                <li>Note the Edit on GitHub links on every page</li>
+              </ul>
+            <li>Community</li>
+              <ul>
+                <li>Use your Carina login</li>
+              </ul>
+            <li>Blog</li>
+              <ul>
+                <li>Subscribe via RSS</li>
+              </ul>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Add a Cluster</h3>
+          <p>Setup a cluster where we can run Docker containers</p>
+          <ul>
+            <li><a href="https://app.getcarina.com/" target="_blank">Log In</a></li>
+            <li>Add Cluster</li>
+              <ul>
+                <li>Cluster Name: mycluster</li>
+                <li>Enable Autoscale: unchecked</li>
+              </ul>
+            <li>Get Access</li>
+              <ul>
+                <li>Download File</li>
+                <li>Unzip</li>
+                <li>List files</li>
+              </ul>
+          </ul>
+          <aside class="notes">
+            This is the last time we touch the GUI. Everything is on the command line from here on out.
+          </aside>
+        </section>
+
+<!-- ********************************************************************** -->
+
+        <section id="docker">
+          <h1 style="color:DeepSkyBlue">Docker</h1>
+        </section>
+
+        <section>
+          <h3>Comparison</h3>
+          <table>
+            <tr>
+              <td><img src="img/what-is-docker-diagram.png" width="400" height="auto"></td>
+              <td><img src="img/what-is-vm-diagram.png" width="400" height="auto"></td>
+            </tr>
+            <tr>
+              <td style="text-align:center">VMs</td>
+              <td style="text-align:center">Containers</td>
+            </tr>
+          </table>
+        </section>
+
+        <section>
+          <h3>Benefits</h3>
+          <ul>
+            <li>Better resource utilization</li>
+            <li>Application packaging (Docker images)</li>
+            <li>Process isolation</li>
+            <li>Reproducible environments</li>
+            <li>Immutable infrastructure</li>
+            <li>Composable</li>
+            <li>Multi-Cloud</li>
+            <li>Encourages 🐮🐮🐮</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Docker Client</h3>
+          <p>The CLI for the Docker API</p>
+          <ul>
+            <li>Containers</li>
+            <li>Images</li>
+            <li>Volumes</li>
+            <li>Networks</li>
+            <li>etc</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Containers</h2>
+          <ul>
+            <li>cgroups for limiting resource usage</li>
+            <li>namespaces for isolation</li>
+            <li>union filesystem for a layered filesystem</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Docker Environment</h3>
+          <pre><code class="bash" data-trim data-noescape>
+$ alias de="env | grep DOCKER_"
+
+<span class="fragment">$ cd Downloads/mycluster</span>
+
+<span class="fragment">$ cat README.md</span>
+<span class="fragment">Using Your Swarm Cluster
+========================
+
+This directory contains all of the files the Docker CLI will need to
+communicate with your Swarm Cluster...</span>
+
+<span class="fragment">$ source docker.env</span>
+
+<span class="fragment">$ de</span>
+<span class="fragment">DOCKER_HOST=tcp://146.20.68.14:2376
+DOCKER_TLS_VERIFY=1
+DOCKER_CERT_PATH=/Users/everett/Downloads/mycluster
+DOCKER_VERSION=1.10.1</span>
+
+<span class="fragment">$ dvm use</span>
+<span class="fragment">Now using Docker 1.10.1</span>
+          </code></pre>
+          <aside class="notes">
+            Whiteboard the architecture so far.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Containers</h3>
+          <pre><code class="bash" data-trim data-noescape>
+$ docker
+<span class="fragment">Usage: docker [OPTIONS] COMMAND [arg...]
+       docker [ --help | -v | --version ]
+
+A self-sufficient runtime for containers...</span>
+
+<span class="fragment">$ docker ps</span>
+<span class="fragment">CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
+2c226fad0713        carina/consul       "/bin/consul agent -b"   2 days ago          Up 2 days                               96afcb76-6483-443e-941d-df9f803a4628-n2/carina-svcd
+c715e66154c8        carina/consul       "/bin/consul agent -b"   3 days ago          Up 3 days                               96afcb76-6483-443e-941d-df9f803a4628-n1/carina-svcd</span>
+
+<span class="fragment">$ docker run --interactive --tty alpine:3.3 /bin/sh</span>
+<span class="fragment">/ #</span>
+          </code></pre>
+          <aside class="notes">
+            Ignore the Consul containers for now. We'll discuss them at the end of Networks.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Containers</h3>
+          <pre><code class="bash" data-trim data-noescape>
+/ # uname -a
+<span class="fragment">Linux d020582f8e97 3.18.21-1-rackos #1 SMP Tue Oct 6 18:37:31 UTC 2015 x86_64 Linux</span>
+
+<span class="fragment">/ # ps</span>
+<span class="fragment">PID   USER     TIME   COMMAND
+    1 root       0:00 /bin/sh
+   17 root       0:00 ps</span>
+
+<span class="fragment">/ # exit</span>
+          </code></pre>
+        </section>
+
+        <section>
+          <h3>Containers</h3>
+          <pre><code class="bash" data-trim data-noescape>
+<span class="fragment">$ docker ps --latest</span>
+<span class="fragment">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                     PORTS               NAMES
+d020582f8e97        alpine:3.3          "/bin/sh"           5 minutes ago       Exited (0) 1 seconds ago                       96afcb76-6483-443e-941d-df9f803a4628-n2/pedantic_yalow</span>
+
+<span class="fragment">$ docker ps --latest --quiet</span>
+<span class="fragment">d020582f8e97</span>
+
+<span class="fragment">$ docker start $(docker ps -l -q)</span>
+<span class="fragment">d020582f8e97</span>
+
+<span class="fragment">$ docker ps -l</span>
+<span class="fragment">CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
+d020582f8e97        alpine:3.3          "/bin/sh"                6 minutes ago       Up 10 seconds                           96afcb76-6483-443e-941d-df9f803a4628-n2/pedantic_yalow</span>
+
+<span class="fragment">$ docker attach $(docker ps -l -q)
+(Press enter if you just get a blank line)</span>
+
+<span class="fragment"># exit</span>
+
+<span class="fragment">$ docker rm $(docker ps -l -q)</span>
+<span class="fragment">d020582f8e97</span>
+          </code></pre>
+          <aside class="notes">
+            <ul>
+              <li>Notice how we're not using SSH</li>
+              <li>You can also use docker exec to enter a container</li>
+              <li>It can be a bit of a pain working with unnamed containers so we'll name them from here on out</li>
+            </ul>
+          </aside>
+        </section>
+
+        <section>
+          <h3>Containers</h3>
+          <pre><code class="bash" data-trim data-noescape>
+$ docker run --detach --name ghost --publish 8080:2368 ghost:0.7
+<span class="fragment">fbe7b7f520e8ba08925f4a2df1cd7d66bbacd25164656e25fca34e24127e7c73</span>
+
+<span class="fragment">$ docker logs ghost</span>
+<span class="fragment">...
+Migrations: Complete
+Ghost is running in development...
+Listening on 0.0.0.0:2368
+Url configured as: http://localhost:2368
+Ctrl+C to shut down</span>
+
+<span class="fragment">$ docker ps -l</span>
+<span class="fragment">CONTAINER ID        IMAGE               COMMAND                  CREATED              STATUS              PORTS                          NAMES
+fbe7b7f520e8        ghost:0.7           "/entrypoint.sh npm s"   About a minute ago   Up About a minute   172.99.77.191:8080->2368/tcp   96afcb76-6483-443e-941d-df9f803a4628-n2/ghost</span>
+
+<span class="fragment">$ open http://$(docker port ghost 2368/tcp)</span>
+
+<span class="fragment">$ docker rm --force ghost</span>
+<span class="fragment">ghost</span>
+          </code></pre>
+          <aside class="notes">
+            Note publishing the port.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Lab #1</h3>
+          <ol>
+            <li>Run an <code>nginx:1.9</code> container in detached mode</li>
+            <li>Bind the container port 80 to the host port 80</li>
+            <li>View the default nginx landing page</li>
+            <li>Bonus Points: Replace the default nginx landing page using <code>docker cp</code> and a file from your laptop</li>
+            <li>Stop the container and remove it</li>
+          </ol>
+
+          <p><a href="https://github.com/everett-toews/jupyterhub-on-docker-swarm/blob/gh-pages/resources/lab-1-solution.md" target="_blank">Top Secret Answer</a></p>
+        </section>
+
+        <section>
+          <h2>Container Resources</h2>
+          <ul>
+            <li><a href="https://docs.docker.com/engine/userguide/containers/usingdocker/" target="_blank">Using Docker</a></li>
+            <li><a href="https://docs.docker.com/engine/understanding-docker/" target="_blank">Understand the architecture</a></li>
+            <li><a href="https://docs.docker.com/engine/reference/run/" target="_blank">Docker run reference</a></li>
+            <li><a href="https://docs.docker.com/engine/reference/commandline/cli/" target="_blank">Use the Docker command line</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Images</h2>
+          <ul>
+            <li>You can kinda sorta think of it like an image for a VM, but really it's a very different beast</li>
+            <li>Layered filesystems</li>
+            <li>Top layer is rw and the layers below are ro</li>
+            <li>There's an analogy to Git but we won't be using <code>docker commit</code></li>
+            <li>By default, images are coming from Docker Hub</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Images</h3>
+          <pre><code class="bash" data-trim data-noescape>
+$ docker images
+<span class="fragment">REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+alpine              3.3                 90239124c352        31 hours ago        4.794 MB
+cirros              latest              f8ce316a37a7        6 weeks ago         7.735 MB
+nginx               1.9                 69203b7cd029        7 days ago          134.6 MB
+swarm               1.1.0               4b5b33ba4e4f        2 weeks ago         18.11 MB
+ghost               0.7                 c39498b8f953        2 weeks ago         352.2 MB
+carina/consul       latest              2a49945a93ab        2 weeks ago         28.49 MB</span>
+
+<span class="fragment">$ docker pull alpine:3.3</span>
+<span class="fragment">96afcb76-6483-443e-941d-df9f803a4628-n1: Pulling alpine:3.3... : downloaded</span>
+          </code></pre>
+          <aside class="notes">
+            Note the sizes.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Dockerfile</h3>
+          <ul>
+            <li>Uses a basic DSL with instructions for building Docker images</li>
+            <li>Provides a repeatable, transparent, and idempotent mechanism for creating images</li>
+            <li>Each instruction adds a new layer to the image and then commits the image</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Images</h3>
+          <pre><code class="bash" data-trim data-noescape>
+$ mkdir -p workshop/ex1
+
+<span class="fragment">$ cd workshop/ex1</span>
+
+<span class="fragment">$ touch Dockerfile</span>
+
+<span class="fragment">$ touch entrypoint.sh</span>
+
+<span class="fragment">$ chmod u+x entrypoint.sh</span>
+          </code></pre>
+        </section>
+
+        <section>
+          <h3>Dockerfile</h3>
+          <p>Edit <code>Dockerfile</code></p>
+          <pre><code class="bash" data-trim>
+FROM alpine:3.3
+MAINTAINER Firstname Lastname "firstname.lastname@example.com"
+
+ARG BUILD_TIME_VAR="Default Build Time Message"
+ENV RUN_TIME_VAR="Default Run Time Message"
+
+RUN apk --no-cache add nginx
+
+COPY entrypoint.sh /entrypoint.sh
+
+WORKDIR /usr/share/nginx/html/
+
+RUN echo $BUILD_TIME_VAR >> index.html
+
+EXPOSE 80
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["Default CMD Message"]
+          </code></pre>
+        </section>
+
+        <section>
+          <h3>Entrypoint Script</h3>
+          <p>Edit <code>entrypoint.sh</code></p>
+          <pre><code class="bash" data-trim>
+#!/bin/sh
+
+set -euo pipefail
+
+echo $RUN_TIME_VAR >> /usr/share/nginx/html/index.html
+echo $1 >> /usr/share/nginx/html/index.html
+
+exec nginx -g "daemon off;"
+          </code></pre>
+        </section>
+
+        <section>
+          <h3>Images</h3>
+          <pre><code class="bash" data-trim data-noescape>
+$ docker build --build-arg BUILD_TIME_VAR="Chop Wood," --tag="nginx-message:1.0" .
+<span class="fragment">Sending build context to Docker daemon 3.072 kB
+Step 1 : FROM alpine:3.3
+ ---> 90239124c352
+...
+Successfully built 3f7493082af2</span>
+
+<span class="fragment">$ docker images</span>
+<span class="fragment">REPOSITORY          TAG                 IMAGE ID            CREATED              SIZE
+nginx-message       1.0                 3f7493082af2        About a minute ago   6.249 MB
+...</span>
+          </code></pre>
+        </section>
+
+        <section>
+          <h3>Images</h3>
+          <pre><code class="bash" data-trim data-noescape>
+$ docker run --detach \
+  --name nginx \
+  --publish 80:80 \
+  --env RUN_TIME_VAR="Carry Water," \
+  nginx-message:1.0 \
+  "Mow Lawn"
+<span class="fragment">3f98a5832b79fe43f97aa07aaa9e425fa33cb7e195e61a6b0d39dfdd4dc0195e</span>
+
+<span class="fragment">$ open http://$(docker port nginx 80/tcp)</span>
+
+<span class="fragment">$ docker rm --force nginx</span>
+<span class="fragment">nginx</span>
+
+<span class="fragment">$ cd ..</span>
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Image Resources</h2>
+          <ul>
+            <li><a href="https://hub.docker.com/" target="_blank">Docker Hub</a></li>
+            <li><a href="https://docs.docker.com/engine/userguide/containers/dockerimages/" target="_blank">Build your own images</a></li>
+            <li><a href="https://docs.docker.com/engine/reference/builder/" target="_blank">Dockerfile reference</a></li>
+            <li><a href="https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/" target="_blank">Best practices for writing Dockerfiles</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Volumes</h2>
+          <ul>
+            <li>A specially-designated directory within one or more containers that bypasses the container's Union File System</li>
+            <li>Data is written directly to the segment</li>
+            <li>Designed to persist data, independent of the container’s life cycle</li>
+            <li>Can be shared and reused among containers</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Volumes</h3>
+          <pre><code class="bash" data-trim data-noescape>
+$ docker create --name data --volume /var/lib/mysql cirros /bin/true
+<span class="fragment">162bf49dbc24245a53095b5be611da3e820862dc8e837a66dab83d7e3f9d5b5a</span>
+
+<span class="fragment">$ docker ps -l
+<span class="fragment">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+162bf49dbc24        cirros              "/bin/true"         12 seconds ago                                              96afcb76-6483-443e-941d-df9f803a4628-n2/data</span>
+
+<span class="fragment">$ docker run --detach \
+  --name mysql \
+  --volumes-from data \
+  --env MYSQL_ROOT_PASSWORD=my-root-pw --env MYSQL_DATABASE=test --env MYSQL_USER=test-user --env MYSQL_PASSWORD=test-password \
+  mysql:5.6</span>
+<span class="fragment">6c38ad9739c47933e0a415912fbec83190bc519650dcb1412091d207f09a040d</span>
+
+<span class="fragment">$ docker run --rm \
+  --volumes-from data \
+  cirros \
+  ls /var/lib/mysql</span>
+<span class="fragment">auto.cnf
+ib_logfile0
+ib_logfile1
+ibdata1
+mysql
+performance_schema
+test</span>
+          </code></pre>
+        </section>
+
+        <section>
+          <h3>Volumes</h3>
+          <pre><code class="bash" data-trim data-noescape>
+$ docker rm -f mysql
+<span class="fragment">mysql</span>
+
+<span class="fragment">$ docker run --rm \
+  --volumes-from data \
+  cirros \
+  ls /var/lib/mysql</span>
+<span class="fragment">auto.cnf
+ib_logfile0
+ib_logfile1
+ibdata1
+mysql
+performance_schema
+test</span>
+
+<span class="fragment">$ docker rm --volumes data</span>
+<span class="fragment">data</span>
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Volume Resources</h2>
+          <ul>
+            <li><a href="https://getcarina.com/docs/tutorials/data-volume-containers/" target="_blank">Use data volume containers</a> (Carina)</li>
+            <li><a href="https://docs.docker.com/engine/userguide/containers/dockervolumes/" target="_blank">Manage data in containers</a></li>
+            <li>Why didn't we use <code>docker volume</code>?</li>
+            <ul>
+              <li>See <a href="https://github.com/docker/swarm/issues/1529" target="_blank">The utility of creating a volume per node</a></li>
+            </ul>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Networks</h2>
+          <ul>
+            <li>Added to Carina last Monday!</li>
+            <li>A secured and isolated environment for the containers in a network</li>
+            <li>Automatic name resolution of containers using DNS</li>
+            <li>The ability to dynamically connect containers to and disconnect containers from multiple networks</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Networks</h3>
+          <pre><code class="bash" data-trim data-noescape>
+$ docker network create mynet
+<span class="fragment">0b1194e03c4747be069eef05b6db67c13974d9717ebd859fcff7aa322aa48d9b</span>
+
+<span class="fragment">$ docker network ls</span>
+<span class="fragment">NETWORK ID          NAME                                                      DRIVER
+0b1194e03c47        mynet                                                     overlay
+33a440068243        96afcb76-6483-443e-941d-df9f803a4628-n1/none              null
+3b126dcfc9ea        96afcb76-6483-443e-941d-df9f803a4628-n1/bridge            bridge
+60cecf066b00        96afcb76-6483-443e-941d-df9f803a4628-n1/host              host
+c3a94fdde28f        96afcb76-6483-443e-941d-df9f803a4628-n1/docker_gwbridge   bridge</span>
+
+<span class="fragment">$ docker run \
+  --detach \
+  --name mysql \
+  --net mynet \
+  --env MYSQL_ROOT_PASSWORD=my-root-pw \
+  mysql:5.6</span>
+<span class="fragment">60d49ac074902a721d6a90af5c4bd85363bed0a998fd4b19da61198f5340b73d</span>
+
+<span class="fragment">$ docker port mysql 3306</span>
+<span class="fragment">Error: No public port '3306/tcp' published for mysql</span>
+          </code></pre>
+        </section>
+
+        <section>
+          <h3>Networks</h3>
+          <pre><code class="bash" data-trim data-noescape>
+$ docker run --detach \
+  --name wordpress \
+  --net mynet \
+  --publish 80:80 \
+  --env WORDPRESS_DB_HOST=mysql \
+  --env WORDPRESS_DB_PASSWORD=my-root-pw \
+  wordpress:4.4
+<span class="fragment">c7ebba7f81c1cf48bddbea6d3080713bea58b9de38ee7e7d422b0010b33daf12</span>
+
+<span class="fragment">$ open http://$(docker port wordpress 80/tcp)</span>
+
+<span class="fragment">$ docker rm -f mysql wordpress</span>
+<span class="fragment">mysql
+wordpress</span>
+          </code></pre>
+        </section>
+
+        <section>
+          <h3>Networks</h3>
+          <pre><code class="bash" data-trim data-noescape>
+$ docker ps
+<span class="fragment">CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
+2c226fad0713        carina/consul       "/bin/consul agent -b"   2 days ago          Up 2 days                               96afcb76-6483-443e-941d-df9f803a4628-n2/carina-svcd
+c715e66154c8        carina/consul       "/bin/consul agent -b"   3 days ago          Up 3 days                               96afcb76-6483-443e-941d-df9f803a4628-n1/carina-svcd</span>
+
+<span class="fragment"># No need to run the following commands</span>
+<span class="fragment">$ docker rm container-name-1 container-name-2</span>
+<span class="fragment">$ docker rm $(docker ps -qf "status=exited")</span>
+          </code></pre>
+          <aside class="notes">
+            Take care to delete by explicit name or status
+          </aside>
+        </section>
+
+        <section>
+          <h2>Network Resources</h2>
+          <ul>
+            <li><a href="https://getcarina.com/blog/overlay-networks/" target="_blank">Overlay networks</a> (Carina)</li>
+            <li><a href="https://docs.docker.com/engine/userguide/networking/dockernetworks/" target="_blank">Understand Docker container networks</a></li>
+            <li><a href="https://docs.docker.com/engine/userguide/networking/work-with-networks/" target="_blank">Work with network commands</a></li>
+            <li><a href="https://docs.docker.com/engine/userguide/networking/get-started-overlay/" target="_blank">Get started with overlay networking</a></li>
+            <li><a href="https://docs.docker.com/engine/userguide/networking/configure-dns/" target="_blank">Embedded DNS server in user-defined networks</a></li>
+          </ul>
+        </section>
+
+<!-- ********************************************************************** -->
+
+        <section id="docker-swarm-carina">
+          <h1 style="color:DeepSkyBlue">Docker Swarm and Carina</h1>
+          <img src="img/docker-swarm.png"/>
+
+          <aside class="notes">
+            <ul>
+              <li>So what is Carina? Docker as a Service</li>
+              <li>Today vs Future (mesos, kubernetes)</li>
+            </ul>
+          </aside>
+        </section>
+
+        <section>
+          <h1>Carina</h1>
+
+          <h3>Push Button, Receive Swarm</h3>
+
+          <img src="img/push-button-receive-bacon.jpg"/>
+
+          <aside class="notes">
+            With some limitations
+          </aside>
+        </section>
+
+        <section>
+          <h2>Docker Swarm</h2>
+          <ul>
+            <li>Many Docker Hosts, one API endpoint</li>
+            <li>Introduces new concepts, like affinities</li>
+            <li>Scheduling according to resource constraints</li>
+          </ul>
+
+          <aside class="notes">
+            <ul>
+              <li>Treat cluster of dockers as 1 docker</li>
+              <li>Same docker commands</li>
+              <li>Scheduling = pick which host on which to run commands</li>
+              <li>Whiteboard the architecture so far</li>
+            </ul>
+          </aside>
+        </section>
+
+        <section>
+        <h3>Carina CLI</h3>
+        <p><a href="https://getcarina.com/docs/getting-started/getting-started-carina-cli/" target="_blank">See installation and configuration instructions</a></p>
+
+        <div class="fragment">
+          <h4>List your Clusters</p>
+          <pre><code class="bash" data-trim data-noescape>
+$ carina ls
+<span class="fragment">ClusterName       Flavor           Segments           AutoScale          Status
+mycluster         container1-4G    1                  false              active</span>
+          </code></pre>
+        </div>
+
+        <div class="fragment">
+          <p style="font-size:.8em; font-style:italic">* DO NOT run the commands below right now, they take a few minutes to execute.
+
+          <h4>Create a Cluster*</h4>
+          <pre><code class="bash" data-trim data-noescape>
+$ carina create --wait foobar
+<span class="fragment">ClusterName     Flavor          Segments         AutoScale        Status
+foobar          container1-4G   1                false            active</span>
+          </code></pre>
+        </div>
+
+          <div class="fragment">
+            <h4>Rebuild a Cluster*</h4>
+            <pre><code class="bash" data-trim data-noescape>
+$ carina rebuild foobar
+<span class="fragment">ClusterName     Flavor          Segments         AutoScale        Status
+foobar          container1-4G   1                false            rebuilding-swarm</span>
+            </code></pre>
+          </div>
+
+          <aside class="notes">
+            <ul>
+              <li>Websites are cool but command-line tools are cooler.
+                  Everything you can do with the site, you can do through the cli</li>
+              <li>Behind the scenes carina is downloading your credentials zip</li>
+              <li>Nice shorthand for the source docker.env command used earlier</li>
+            </ul>
+          </aside>
+        </section>
+
+        <section>
+          <h3>Carina CLI Continued</h3>
+          <h4>Load the Docker environment for your Cluster</h4>
+          <pre><code class="bash" data-trim data-noescape>
+$ carina env mycluster
+source /Users/caro8994/.carina/clusters/carolynvsrax/mycluster/docker.env
+# Run the command below to get your Docker environment variables set:
+# eval $(carina env mycluster)
+
+PS> carina env mycluster --shell powershell
+. C:\Users\caro8994\carina\clusters\carolynvsrax\mycluster\docker.ps1
+# Run the command below to get your Docker environment variables set:
+# carina env mycluster --shell powershell | iex</span>
+
+<span class="fragment">$ eval $(carina env mycluster)
+PS> carina env mycluster --shell powershell | iex</span>
+
+<span class="fragment">$ docker ps</span>
+<span class="fragment">CONTAINER ID      IMAGE      COMMAND                  CREATED             STATUS
+ab668e03cafb      logjam     "tail -f /var/log/foo"   3 seconds ago       Up 3 seconds</span>
+          </code></pre>
+        </section>
+
+        <section>
+          <h3>Carina CLI Continued</h3>
+          <h4>Grow Your Cluster</h4>
+          <pre><code class="bash" data-trim data-noescape>
+$ carina ls
+<span class="fragment">ClusterName        Flavor             Segments           AutoScale          Status
+mycluster          container1-4G      1                  false              active</span>
+<span class="fragment">
+$ carina grow --by 1 mycluster</span>
+<span class="fragment">ClusterName        Flavor             Segments           AutoScale          Status
+mycluster          container1-4G      1                  false              growing</span>
+<span class="fragment">
+$ carina ls</span>
+<span class="fragment">ClusterName        Flavor             Segments           AutoScale          Status
+mycluster          container1-4G      2                  false              active</span>
+          </code></pre>
+          <aside class="notes">
+            Whiteboard the architecture so far.
+          </aside>
+        </section>
+
+      <section>
+        <h3>Swarm Scheduling in Action</h3>
+        <pre><code class="bash" data-trim data-noescape>
+$ <span class="fragment">docker run --name whoa1 --detach --publish 80:8080 rackerlabs/whoa</span>
+<span class="fragment">44aff6801d136ae7ba49ad074d94a7ba94740326f8d9099d7830ec8095abdf72</span>
+<span class="fragment">
+$ docker port whoa1 8080</span>
+<span class="fragment">104.130.0.119:80</span>
+<span class="fragment">
+$ docker run --name whoa2 --detach --publish 80:8080 rackerlabs/whoa</span>
+<span class="fragment">5e0a9815f9558c7a26a44f3bb214f241a5fbf26e01e008739dff64e39c802fce</span>
+<span class="fragment">
+$ docker port whoa2 8080</span>
+<span class="fragment">104.130.0.117:80</span>
+<span class="fragment">
+$ curl $(docker port whoa1 8080/tcp)</span>
+<span class="fragment">🎉  Whoa!  🎉</span>
+        </code></pre>
+
+        <aside class="notes">
+          <ul>
+            <li>Now we have 2 segments, let's fill them up with stuff.</li>
+            <li>Each segment is a docker host</li>
+            <li>Segment IP Address</li>
+            <li>Publish to same port across segments</li>
+          </ul>
+        </aside>
+      </section>
+
+      <section>
+          <h3>Lab #2</h3>
+          <ol>
+            <li>Create a new cluster</li>
+            <li>Grow the cluster to 3 segments</li>
+            <li>Load the Docker environment for the new cluster</li>
+            <li>Run 3 instances of <code>rackerlabs/whoa</code> on port 80</li>
+            <li>Stop the containers and remove them</li>
+          </ol>
+
+          <p><a href="https://github.com/everett-toews/jupyterhub-on-docker-swarm/blob/gh-pages/resources/lab-2-solution.md" target="_blank">Top Secret Answer</a></p>
+      </section>
+
+      <section>
+        <h3>Where does it run?</h3>
+
+        <p>Factors that implicitly influence container placement</p>
+
+        <ul>
+          <li><code>--publish</code> finds a node with the published port free</li>
+          <li><code>--volumes-from</code> uses the same segment as the named container</li>
+        </ul>
+
+        <aside class="notes">
+          When Swarm schedules a new container, a number of factors determine which node it places
+          the container on. Containers related with these docker arguments will automatically be
+          scheduled together.
+        </aside>
+      </section>
+
+      <section>
+        <h3>Constraints and Affinity</h3>
+
+        <p>Explicitly influence where your containers run</p>
+        <p>Set by environment variables or build arguments</p>
+<pre><code class="bash" data-noescape data-trim>
+# Run on the same node as another container
+$ docker run --env affinity:container==backend ...
+
+<span class="fragment"># Run on a node where image is available
+$ docker run --env affinity:image==myapp ...</span>
+
+<span class="fragment"># Explicit node name
+$ docker run --env constraint:node==*-n1 ...</span></span>
+
+<span class="fragment"># Build a new image on the same node as an existing container
+$ docker build --build-arg affinity:image==myapp -t myapp:v2 .</span>
+</code></pre>
+
+        <aside class="notes">
+          Generally speaking, constraints filter on docker daemon attributes, while affinities
+          filter on attributes of other containers on each node. You can also use custom container
+          metadata labels for lots of control.
+        </aside>
+      </section>
+
+      <section>
+        <h3>Carina Clusters</h3>
+
+        <ul>
+          <li>1 to 3 <em>"segments"</em>; LXC containers on a physical host</li>
+          <li>20 GB disk space, 4 GB memory, 2 vCPUs per segment</li>
+          <li>Each segment has its own public IP, discoverable via <code>docker info</code></li>
+        </ul>
+
+        <pre class="fragment"><code data-trim data-noescape>
+$ docker info
+Containers: 9
+Images: 13
+Role: primary
+Strategy: spread
+Filters: health, port, dependency, affinity, constraint
+Nodes: 3
+6dcd3c04-fab5-4367-ac39-d8b17c41c39c-n1: <mark>172.99.73.138</mark>:42376
+└ Containers: 3
+└ Reserved CPUs: 0 / 12
+└ Reserved Memory: 0 B / 4.2 GiB
+└ Labels: executiondriver=native-0.2, kernelversion=3.18.21-1-rackos, ...
+        </pre></code>
+
+      </section>
+
+      <section>
+        <img src="img/carina-topology.png"/>
+
+        <aside class="notes">
+          Segment v. Node
+          Carina segments are for resource control, not geographic redundancy.
+        </aside>
+      </section>
+
+      <section>
+        <h3>Carina Restrictions</h3>
+        <p>tldr: You don't have access to the underlying Docker host</p>
+
+        <pre><code>--volume HOST:CONTAINER</code></pre>
+        <pre><code>--privileged</code></pre>
+        <pre><code>--cap-add/drop</code></pre>
+
+        <p><a href="https://getcarina.com/docs/troubleshooting/common-problems/" target="_blank">See Carina Troubleshooting for more</a></p>
+
+        <aside class="notes">
+          * Mostly these are related to security needs. Prefer using data volume containers to host
+          volumes.
+          * Encourages good habits wrt volumes
+        </aside>
+      </section>
+
+      <section>
+        <h3>Carina Resources</h3>
+        <ul>
+          <li><a href="https://getcarina.com/docs/concepts/docker-swarm-carina/" target="_blank">Understanding how Carina uses Docker Swarm</a></li>
+          <li><a href="https://getcarina.com/docs/reference/faq/" target="_blank">Carina FAQ</a></li>
+          <li><a href="https://getcarina.com/docs/" target="_blank">Carina Tutorials, Troubleshooting and Best Practices</a></li>
+          <li><a href="https://docs.docker.com/swarm/overview/" target="_blank">Docker Swarm Overview</a></li>
+        </ul>
+      </section>
+<!-- ********************************************************************** -->
+
+        <section id="break">
+          <h1 style="color:DeepSkyBlue">Break</h1>
+        </section>
+
+<!-- ********************************************************************** -->
+
+        <section id="notebook">
+          <h1 style="color:DeepSkyBlue">Notebook</h1>
+        </section>
+
+        <section>
+          <h2>Outline</h2>
+          <ul>
+            <li>Interactive Literate Coding</li>
+            <li>Collaboration</li>
+            <li>Visualization</li>
+            <li>Rich objects</li>
+            <li>Share-able documents</li>
+          </ul>
+          <aside class="notes">
+              The notebook gives you an environment where you can mix and match
+              code, prose, and outputs within a document that you can share with
+              others
+          </aside>
+        </section>
+
+        <section>
+          <h3>Living Code</h3>
+          <img src="img/interactive-notebook.png"></img>
+        </section>
+
+        <section>
+          <h2>Let's try it live!</h2>
+          <h3><a href="https://tmpnb.org" target="_blank">tmpnb.org</a></h3>
+        </section>
+
+<!-- ********************************************************************** -->
+
+        <section id="jupyterhub-carina">
+          <h1 style="color:DeepSkyBlue">JupyterHub on Carina</h1>
+        </section>
+
+        <section>
+          <h2>JupyterHub Architecture</h2>
+          <ul>
+            <li>Notebook servers for users</li>
+            <li>Configurable HTTP Proxy</li>
+            <li>Bring your own auth</li>
+          </ul>
+          <aside class="notes">
+            Whiteboard the architecture so far.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Outline</h2>
+          <ul>
+            <li>Create a new cluster</li>
+            <li>Clone the repo for this preso</li>
+            <li>Rely on jupyterhub-launch</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Create a new cluster</h3>
+          <pre><code class="bash" data-trim data-noescape>
+carina create jupyterhub --wait
+          </code></pre>
+        </section>
+
+<!-- That's one long repo name for the board -->
+        <section>
+          <h3>Clone this repo</h3>
+          <pre><code class="bash" data-trim data-noescape>
+git clone https://github.com/everett-toews/jupyterhub-on-docker-swarm
+          </code></pre>
+
+          <p>If you don't have git, <a href="https://github.com/everett-toews/jupyterhub-on-docker-swarm/archive/gh-pages.zip" target="_blank">download the repository</a>.</p>
+        </section>
+
+        <section>
+          <h3>Configure GitHub OAuth</h3>
+
+          <p>Get your segment IP address</p>
+          <pre><code class="bash" data-trim data-noescape>
+$ eval $(carina env jupyterhub)
+PS> carina env jupyterhub | iex
+
+$ echo "Segment IP: $(docker run --rm --net=host racknet/ip public ipv4)"
+Segment IP: 146.20.68.51
+          </code></pre>
+        </section>
+
+        <section>
+          <h3>Configure GitHub OAuth Cont.</h3>
+
+          <p><a href="https://github.com/settings/applications/new" target="_blank">Create a new developer application on GitHub</a></p>
+          <img src="img/github-oauth-app.png" />
+        </section>
+
+        <section>
+          <h3>Configure GitHub OAuth Cont.</h3>
+
+          <p>Copy your secrets</p>
+          <img src="img/github-oauth-secret.png" />
+
+          <p style="font-size: .7em; font-style: italic">Yes, I reset my secret after this screenshot...</p>
+        </section>
+
+        <section>
+          <h3>Launch</h3>
+
+          <pre><code class="bash" data-trim>
+$ cd jupyterhub-on-docker-swarm/jupyterhub-launch
+
+$ export DNSNAME=$(docker run --rm --net=host racknet/ip public ipv4)
+$ export JUPYTERHUB_USERS=<github-user>
+$ export GITHUB_CLIENT_ID=<github-client-id>
+$ export GITHUB_CLIENT_SECRET=<github-client-secret>
+$ ./launch.sh
+
+PS> carina env jupyterhub --shell powershell | iex
+PS> $env:DNSNAME=$(docker run --rm --net=host racknet/ip public ipv4); `
+  $env:JUPYTERHUB_USERS="&lt;github-user&gt;"; `
+  $env:GITHUB_CLIENT_ID="&lt;github-client-id&gt;"; `
+  $env:GITHUB_CLIENT_SECRET="&lt;github-client-secret&gt;"; `
+  .\launch.ps1
+          </code></pre>
+
+          <p>Your web browser should automatically open to display JupyterHub.</p>
+        </section>
+
+        <section>
+          <h3>Start your Jupyter Notebook</h3>
+
+          <ol>
+            <li>Sign in with GitHub.</li>
+            <li>Start your Jupyter server.</li>
+            <li>Copy a notebook to your server</li>
+            <pre style="width: 45em;"><code>docker cp welcome-to-python.ipynb jupyter-&lt;github-user&gt;:/home/jovyan/work</pre></code>
+            <li>Open the Welcome to Python notebook.</li>
+          </ol>
+        </section>
+
+        <section>
+          <h3>Review</h3>
+          <ul>
+            <li><a href="https://github.com/everett-toews/jupyterhub-on-docker-swarm/blob/gh-pages/jupyterhub-launch/launch.sh" target="_blank">launch.sh</a></li>
+            <li><a href="https://github.com/everett-toews/jupyterhub-on-docker-swarm/blob/gh-pages/jupyterhub-launch/Dockerfile" target="_blank">Dockerfile</a></li>
+            <li><a href="https://github.com/jupyter/jupyterhub/blob/master/Dockerfile" target="_blank">Parent Dockerfile</a></li>
+          </ul>
+        </section>
+
+
+<!-- ********************************************************************** -->
+
+        <section id="wrap-up">
+          <h1 style="color:DeepSkyBlue">Wrap up</h1>
+        </section>
+
+        <section>
+          <h1>Thanks!</h1>
+          <ul>
+            <li><a href="https://rax.io/workshops-feedback" target="_blank">Feedback survey</a></li>
+          </ul>
+        </section>
+
+<!-- ********************************************************************** -->
+
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: false,
+        slideNumber: 'h/v',
+        progress: false,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/zoom-js/zoom.js', async: true },
+          { src: 'plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
