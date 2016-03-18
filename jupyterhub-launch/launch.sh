@@ -16,7 +16,7 @@ set -euo pipefail
 # export GITHUB_CLIENT_ID=
 # export GITHUB_CLIENT_SECRET=
 
-docker build -t jupyterhub-carina .
+docker build --build-arg "constraint:node==*n1" -t jupyterhub-carina .
 docker pull jupyter/singleuser
 
 docker run --detach \
