@@ -260,9 +260,9 @@ DOCKER_VERSION=1.10.1</span>
         <div class="fragment">
           <h4>List your Clusters</p>
           <pre><code class="bash" data-trim data-noescape>
-$ carina list
-<span class="fragment">ClusterName       Flavor           Segments           AutoScale          Status
-mycluster         container1-4G    1                  false              active</span>
+$ carina ls
+<span class="fragment">ClusterName       Flavor           Nodes           AutoScale          Status
+mycluster         container1-4G    1               false              active</span>
           </code></pre>
         </div>
 
@@ -272,8 +272,8 @@ mycluster         container1-4G    1                  false              active<
           <h4>Create a Cluster*</h4>
           <pre><code class="bash" data-trim data-noescape>
 $ carina create --wait foobar
-<span class="fragment">ClusterName     Flavor          Segments         AutoScale        Status
-foobar          container1-4G   1                false            active</span>
+<span class="fragment">ClusterName     Flavor          Nodes         AutoScale        Status
+foobar          container1-4G   1             false          active</span>
           </code></pre>
         </div>
 
@@ -281,8 +281,8 @@ foobar          container1-4G   1                false            active</span>
             <h4>Rebuild a Cluster*</h4>
             <pre><code class="bash" data-trim data-noescape>
 $ carina rebuild foobar
-<span class="fragment">ClusterName     Flavor          Segments         AutoScale        Status
-foobar          container1-4G   1                false            rebuilding-swarm</span>
+<span class="fragment">ClusterName     Flavor          Nodes         AutoScale        Status
+foobar          container1-4G   1             false            rebuilding-swarm</span>
             </code></pre>
           </div>
 
@@ -323,17 +323,17 @@ ab668e03cafb      logjam     "tail -f /var/log/foo"   3 seconds ago       Up 3 s
           <h3>Carina CLI Continued</h3>
           <h4>Grow Your Cluster</h4>
           <pre><code class="bash" data-trim data-noescape>
-$ carina list
-<span class="fragment">ClusterName        Flavor             Segments           AutoScale          Status
-mycluster          container1-4G      1                  false              active</span>
+$ carina ls
+<span class="fragment">ClusterName        Flavor             Nodes           AutoScale          Status
+mycluster          container1-4G      1               false              active</span>
 <span class="fragment">
 $ carina grow --by 1 mycluster</span>
-<span class="fragment">ClusterName        Flavor             Segments           AutoScale          Status
-mycluster          container1-4G      1                  false              growing</span>
+<span class="fragment">ClusterName        Flavor             Nodes           AutoScale          Status
+mycluster          container1-4G      1               false              growing</span>
 <span class="fragment">
-$ carina list</span>
-<span class="fragment">ClusterName        Flavor             Segments           AutoScale          Status
-mycluster          container1-4G      2                  false              active</span>
+$ carina ls</span>
+<span class="fragment">ClusterName        Flavor             Nodes           AutoScale          Status
+mycluster          container1-4G      2               false              active</span>
           </code></pre>
           <aside class="notes">
             Whiteboard the architecture so far.
@@ -361,10 +361,10 @@ $ curl $(docker port whoa1 8080/tcp)</span>
 
         <aside class="notes">
           <ul>
-            <li>Now we have 2 segments, let's fill them up with stuff.</li>
-            <li>Each segment is a docker host</li>
-            <li>Segment IP Address</li>
-            <li>Publish to same port across segments</li>
+            <li>Now we have 2 nodes, let's fill them up with stuff.</li>
+            <li>Each node is a docker host</li>
+            <li>Node IP Address</li>
+            <li>Publish to same port across nodes</li>
           </ul>
         </aside>
       </section>
@@ -376,7 +376,7 @@ $ curl $(docker port whoa1 8080/tcp)</span>
 
         <ul>
           <li><code>--publish</code> finds a node with the published port free</li>
-          <li><code>--volumes-from</code> uses the same segment as the named container</li>
+          <li><code>--volumes-from</code> uses the same node as the named container</li>
         </ul>
 
         <aside class="notes">
@@ -416,9 +416,9 @@ $ docker build --build-arg affinity:container==myapp -t myapp:v2 .</span>
         <h3>Carina Clusters</h3>
 
         <ul>
-          <li>1 to 3 <em>"segments"</em>; LXC containers on a physical host</li>
-          <li>20 GB disk space, 4 GB memory, 2 vCPUs per segment</li>
-          <li>Each segment has its own public IP, discoverable via <code>docker info</code></li>
+          <li>1 to 3 <em>nodes</em>; LXC containers on a physical host</li>
+          <li>20 GB disk space, 4 GB memory, 2 vCPUs per node</li>
+          <li>Each node has its own public IP, discoverable via <code>docker info</code></li>
         </ul>
 
         <pre class="fragment"><code data-trim data-noescape>
@@ -440,11 +440,6 @@ Nodes: 3
 
       <section>
         <img src="img/carina-topology.png"/>
-
-        <aside class="notes">
-          Segment v. Node
-          Carina segments are for resource control, not geographic redundancy.
-        </aside>
       </section>
 
       <section>
@@ -558,13 +553,13 @@ git clone https://github.com/everett-toews/jupyterhub-on-docker-swarm
         <section>
           <h3>Configure GitHub OAuth</h3>
 
-          <p>Get your segment IP address</p>
+          <p>Get your IP address</p>
           <pre><code class="bash" data-trim data-noescape>
 $ eval $(carina env jupyterhub)
 PS> carina env jupyterhub | iex
 
-$ echo "Segment IP: $(docker run --rm --net=host racknet/ip public ipv4)"
-Segment IP: 146.20.68.51
+$ echo "IP: $(docker run --rm --net=host racknet/ip public ipv4)"
+IP: 146.20.68.51
           </code></pre>
         </section>
 
