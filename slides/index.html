@@ -130,7 +130,7 @@
               <li>The CLI for the Carina API</li>
               <li><a href="https://getcarina.com/docs/getting-started/getting-started-carina-cli/" target="_blank">Getting started with the Carina CLI</a></li>
               <li>Do the <b>Download and install the CLI</b> and <b>Configure with Carina credentials</b> sections only</li>
-              <li><code>carina ls</code></li>
+              <li><code>carina list</code></li>
             </ol>
           </ol>
         </section>
@@ -260,7 +260,7 @@ DOCKER_VERSION=1.10.1</span>
         <div class="fragment">
           <h4>List your Clusters</p>
           <pre><code class="bash" data-trim data-noescape>
-$ carina ls
+$ carina list
 <span class="fragment">ClusterName       Flavor           Segments           AutoScale          Status
 mycluster         container1-4G    1                  false              active</span>
           </code></pre>
@@ -323,7 +323,7 @@ ab668e03cafb      logjam     "tail -f /var/log/foo"   3 seconds ago       Up 3 s
           <h3>Carina CLI Continued</h3>
           <h4>Grow Your Cluster</h4>
           <pre><code class="bash" data-trim data-noescape>
-$ carina ls
+$ carina list
 <span class="fragment">ClusterName        Flavor             Segments           AutoScale          Status
 mycluster          container1-4G      1                  false              active</span>
 <span class="fragment">
@@ -331,7 +331,7 @@ $ carina grow --by 1 mycluster</span>
 <span class="fragment">ClusterName        Flavor             Segments           AutoScale          Status
 mycluster          container1-4G      1                  false              growing</span>
 <span class="fragment">
-$ carina ls</span>
+$ carina list</span>
 <span class="fragment">ClusterName        Flavor             Segments           AutoScale          Status
 mycluster          container1-4G      2                  false              active</span>
           </code></pre>
