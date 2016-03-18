@@ -162,7 +162,7 @@
             <li><a href="https://app.getcarina.com/" target="_blank">Log In</a></li>
             <li>Add Cluster</li>
               <ul>
-                <li>Cluster Name: mycluster</li>
+                <li>Cluster Name: jupyterhub</li>
                 <li>Enable Autoscale: unchecked</li>
               </ul>
             <li>Get Access</li>
@@ -184,7 +184,7 @@
           <pre><code class="bash" data-trim data-noescape>
 $ alias de="env | grep DOCKER_"
 
-<span class="fragment">$ cd Downloads/mycluster</span>
+<span class="fragment">$ cd Downloads/jupyterhub</span>
 
 <span class="fragment">$ cat README.md</span>
 <span class="fragment">Using Your Swarm Cluster
@@ -198,7 +198,7 @@ communicate with your Swarm Cluster...</span>
 <span class="fragment">$ de</span>
 <span class="fragment">DOCKER_HOST=tcp://146.20.68.14:2376
 DOCKER_TLS_VERIFY=1
-DOCKER_CERT_PATH=/Users/everett/Downloads/mycluster
+DOCKER_CERT_PATH=/Users/everett/Downloads/jupyterhub
 DOCKER_VERSION=1.10.1</span>
 
 <span class="fragment">$ dvm use</span>
@@ -262,7 +262,7 @@ DOCKER_VERSION=1.10.1</span>
           <pre><code class="bash" data-trim data-noescape>
 $ carina ls
 <span class="fragment">ClusterName       Flavor           Nodes           AutoScale          Status
-mycluster         container1-4G    1               false              active</span>
+jupyterhub         container1-4G    1               false              active</span>
           </code></pre>
         </div>
 
@@ -300,18 +300,18 @@ foobar          container1-4G   1             false            rebuilding-swarm<
           <h3>Carina CLI Continued</h3>
           <h4>Load the Docker environment for your Cluster</h4>
           <pre><code class="bash" data-trim data-noescape>
-$ carina env mycluster
-source /Users/caro8994/.carina/clusters/carolynvsrax/mycluster/docker.env
+$ carina env jupyterhub
+source /Users/caro8994/.carina/clusters/carolynvsrax/jupyterhub/docker.env
 # Run the command below to get your Docker environment variables set:
-# eval $(carina env mycluster)
+# eval $(carina env jupyterhub)
 
-PS> carina env mycluster --shell powershell
-. C:\Users\caro8994\carina\clusters\carolynvsrax\mycluster\docker.ps1
+PS> carina env jupyterhub --shell powershell
+. C:\Users\caro8994\carina\clusters\carolynvsrax\jupyterhub\docker.ps1
 # Run the command below to get your Docker environment variables set:
-# carina env mycluster --shell powershell | iex</span>
+# carina env jupyterhub --shell powershell | iex</span>
 
-<span class="fragment">$ eval $(carina env mycluster)
-PS> carina env mycluster --shell powershell | iex</span>
+<span class="fragment">$ eval $(carina env jupyterhub)
+PS> carina env jupyterhub --shell powershell | iex</span>
 
 <span class="fragment">$ docker ps</span>
 <span class="fragment">CONTAINER ID      IMAGE      COMMAND                  CREATED             STATUS
@@ -325,15 +325,15 @@ ab668e03cafb      logjam     "tail -f /var/log/foo"   3 seconds ago       Up 3 s
           <pre><code class="bash" data-trim data-noescape>
 $ carina ls
 <span class="fragment">ClusterName        Flavor             Nodes           AutoScale          Status
-mycluster          container1-4G      1               false              active</span>
+jupyterhub          container1-4G      1               false              active</span>
 <span class="fragment">
-$ carina grow --by 1 mycluster</span>
+$ carina grow --by 1 jupyterhub</span>
 <span class="fragment">ClusterName        Flavor             Nodes           AutoScale          Status
-mycluster          container1-4G      1               false              growing</span>
+jupyterhub          container1-4G      1               false              growing</span>
 <span class="fragment">
 $ carina ls</span>
 <span class="fragment">ClusterName        Flavor             Nodes           AutoScale          Status
-mycluster          container1-4G      2               false              active</span>
+jupyterhub          container1-4G      2               false              active</span>
           </code></pre>
           <aside class="notes">
             Whiteboard the architecture so far.
@@ -519,24 +519,26 @@ Nodes: 3
             <li>Configurable HTTP Proxy</li>
             <li>Bring your own auth</li>
           </ul>
-          <aside class="notes">
-            Whiteboard the architecture so far.
-          </aside>
+        </section>
+
+        <section>
+          <img style="background-color: white; border-radius: 15px;" src="http://jhamrick.github.io/scipy-2015-slides/images/jupyterhub8.png" />
         </section>
 
         <section>
           <h2>Outline</h2>
           <ul>
-            <li>Create a new cluster</li>
-            <li>Clone the repo for this preso</li>
+            <li>Get access to your cluster</li>
+            <li>Clone the repo for this presentation</li>
             <li>Rely on jupyterhub-launch</li>
           </ul>
         </section>
 
         <section>
-          <h3>Create a new cluster</h3>
+          <h3>Get your cluster</h3>
           <pre><code class="bash" data-trim data-noescape>
-carina create jupyterhub --wait
+$ eval $(carina env jupyterhub)
+PS> carina env jupyterhub | iex
           </code></pre>
         </section>
 
@@ -544,10 +546,10 @@ carina create jupyterhub --wait
         <section>
           <h3>Clone this repo</h3>
           <pre><code class="bash" data-trim data-noescape>
-git clone https://github.com/everett-toews/jupyterhub-on-docker-swarm
+git clone https://github.com/getcarina/jupyterhub-boston-2015
           </code></pre>
 
-          <p>If you don't have git, <a href="https://github.com/everett-toews/jupyterhub-on-docker-swarm/archive/gh-pages.zip" target="_blank">download the repository</a>.</p>
+          <p>If you don't have git, <a href="https://github.com/getcarina/jupyterhub-boston2015/archive/gh-pages.zip" target="_blank">download the repository</a>.</p>
         </section>
 
         <section>
@@ -555,9 +557,6 @@ git clone https://github.com/everett-toews/jupyterhub-on-docker-swarm
 
           <p>Get your IP address</p>
           <pre><code class="bash" data-trim data-noescape>
-$ eval $(carina env jupyterhub)
-PS> carina env jupyterhub | iex
-
 $ echo "IP: $(docker run --rm --net=host racknet/ip public ipv4)"
 IP: 146.20.68.51
           </code></pre>
@@ -617,8 +616,8 @@ PS> $env:DNSNAME=$(docker run --rm --net=host racknet/ip public ipv4); `
         <section>
           <h3>Review</h3>
           <ul>
-            <li><a href="https://github.com/everett-toews/jupyterhub-on-docker-swarm/blob/gh-pages/jupyterhub-launch/launch.sh" target="_blank">launch.sh</a></li>
-            <li><a href="https://github.com/everett-toews/jupyterhub-on-docker-swarm/blob/gh-pages/jupyterhub-launch/Dockerfile" target="_blank">Dockerfile</a></li>
+            <li><a href="https://github.com/getcarina/jupyterhub-boston-2015/blob/master/jupyterhub-launch/launch.sh" target="_blank">launch.sh</a></li>
+            <li><a href="https://github.com/getcarina/jupyterhub-boston-2015/blob/master/jupyterhub-launch/Dockerfile" target="_blank">Dockerfile</a></li>
             <li><a href="https://github.com/jupyter/jupyterhub/blob/master/Dockerfile" target="_blank">Parent Dockerfile</a></li>
           </ul>
         </section>
