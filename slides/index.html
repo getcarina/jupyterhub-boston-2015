@@ -430,7 +430,7 @@ $ curl $(docker port whoa1 8080/tcp)</span>
       </section>
 
       <section>
-        <h3>Constraints and Affinity</h3>
+        <h3>Constraints and Affinities</h3>
 
         <p>Explicitly influence where your containers run</p>
         <p>Set by environment variables or build arguments</p>
@@ -445,7 +445,7 @@ $ docker run --env affinity:image==myapp ...</span>
 $ docker run --env constraint:node==*-n1 ...</span></span>
 
 <span class="fragment"># Build a new image on the same node as an existing container
-$ docker build --build-arg affinity:image==myapp -t myapp:v2 .</span>
+$ docker build --build-arg affinity:container==myapp -t myapp:v2 .</span>
 </code></pre>
 
         <aside class="notes">
